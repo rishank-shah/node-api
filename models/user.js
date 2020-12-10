@@ -1,6 +1,7 @@
 const moongoose = require("mongoose")
 const uuidv1 = require("uuidv1")
 const crypto = require("crypto")
+const {ObjectId} = moongoose.Schema
 
 const userSchema = new moongoose.Schema({
     name:{
@@ -30,7 +31,9 @@ const userSchema = new moongoose.Schema({
     about:{
         type:String,
         trim:true
-    }
+    },
+    following: [{type:ObjectId,ref:"User"}],
+    followers: [{type:ObjectId,ref:"User"}]
 })
 
 userSchema

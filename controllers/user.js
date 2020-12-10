@@ -4,7 +4,10 @@ const formidable = require("formidable")
 const fs = require('fs')
 
 exports.userById = (req,res,next,id) =>{
-    User.findById(id).exec((err,user)=>{
+    User.findById(id)
+    .populate('following','_id name')
+    .populate('followers','_id name')
+    .exec((err,user)=>{
         if(err || !user)
             return res.status(400).json({
                 error: "User not found"
@@ -112,3 +115,56 @@ exports.userPhoto = (req,res,next) =>{
     }
     next();
 }
+
+exports.addFollowing = (req,res,next) =>{
+    User.findByIdAndUpdate(req.body.userById,{$push:{following:req.body.followId}},(err,result)=>{
+        if(err){
+            return res.status(400).json({error:err})
+        }
+        next()
+    })
+}
+
+exports.addFollower = (req,res,next) =>{
+    User.findByIdAndUpdate(req.body.followId,{$push:{follower:req.body.userId}},
+        {new:true})
+    .populate("following",'_id name')
+    .populate("follower",'_id name')
+    .exec((err,result)=>{
+        if(err){
+            return res.status(400).json({
+                error:err
+            })
+        }
+        result.hashed_password = undefined
+        result.salt = undefined
+        res.json(result)
+    })
+}
+
+exports.removeFollowing = (req,res,next) =>{
+    User.findByIdAndUpdate(req.body.userById,{$pull:{following:req.body.unfollowId}},(err,result)=>{
+        if(err){
+            return res.status(400).json({error:err})
+        }
+        next()
+    })
+}
+
+exports.removeFollower = (req,res,next) =>{
+    User.findByIdAndUpdate(req.body.unfollowId,{$pull:{follower:req.body.userId}},
+        {new:true})
+    .populate("following",'_id name')
+    .populate("follower",'_id name')
+    .exec((err,result)=>{
+        if(err){
+            return res.status(400).json({
+                error:err
+            })
+        }
+        result.hashed_password = undefined
+        result.salt = undefined
+        res.json(result)
+    })
+}
+
