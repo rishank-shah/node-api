@@ -31,10 +31,6 @@ exports.allUsers = (req,res)=>{
             return res.status(400).json({
                 error:err
             })
-        
-        // res.json({
-        //     users: users
-        // })
         res.json(users)
     }).select("name email updated created")
 }
@@ -44,25 +40,6 @@ exports.getUser = (req,res)=>{
     req.profile.salt = undefined
     return res.json(req.profile)
 }
-
-
-//before file upload
-// exports.updateUser= (req,res,next)=>{
-//     let user = req.profile
-//     user = _.extend(user,req.body)
-//     user.updated = Date.now()
-//     user.save((err)=>{
-//         if(err)
-//             return res.status(400).json({
-//                 error: "You are not Authorised to perform this action"
-//             })
-//             user.hashed_password = undefined
-//             user.salt = undefined
-//             res.json({
-//                 user: user
-//             })        
-//     })
-// }
 
 exports.updateUser= (req,res,next)=>{
     let form = new formidable.IncomingForm()
@@ -142,7 +119,7 @@ exports.addFollower = (req, res) => {
 };
 
 exports.removeFollowing = (req,res,next) =>{
-    User.findByIdAndUpdate(req.body.userById,{$pull:{following:req.body.unfollowId}},(err,result)=>{
+    User.findByIdAndUpdate(req.body.userId,{$pull:{following:req.body.unfollowId}},(err,result)=>{
         if(err){
             return res.status(400).json({error:err})
         }
@@ -167,3 +144,14 @@ exports.removeFollower = (req,res,next) =>{
     })
 }
 
+exports.findUsers = (req,res)=>{
+    let following = req.profile.following
+    following.push(req.profile._id)
+    //nin -> not included
+    User.find({_id: {$nin:following}},(err,users)=>{
+        if(err){
+            return res.status(400).json({error:err})
+        }
+        res.json(users)
+    }).select('name')
+}
