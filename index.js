@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser')
 const cors = require("cors")
 dotenv.config()
 
+app.use(cors())
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true,useUnifiedTopology:true })
   .then(()=>{console.log("DB Connected Sucessfully")})
 
@@ -37,7 +38,7 @@ app.get("/",(req,res)=>{
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors())
+
 
 app.use("/",postRoutes);
 app.use("/",authRoutes);
