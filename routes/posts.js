@@ -8,6 +8,8 @@ const {userById} = require("../controllers/user")
 
 router.get("/posts",postController.getPosts)
 
+router.get('/post/:postId', postController.onePost);
+
 router.post("/post/new/:userId",requireSignin,postController.createPost,[
   check('title',"Write A Title").notEmpty()
   ,check("title","Title must be between 4 to 150 characters").isLength({
@@ -34,6 +36,8 @@ router.get("/posts/by/:userId",requireSignin,postController.postByUser)
 router.delete("/post/:postId",requireSignin,postController.isPoster,postController.deletePost)
 
 router.put("/post/:postId",requireSignin,postController.isPoster,postController.updatePost)
+
+router.get('/post/photo/:postId',postController.postPhoto)
 
 router.param("userId",userById)
 

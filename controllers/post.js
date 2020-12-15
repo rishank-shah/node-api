@@ -98,3 +98,15 @@ exports.updatePost = (req,res,next)=>{
   })
   res.json({post})
 }
+
+exports.postPhoto = (req,res,next) =>{
+  //if(req.post.photo.data){
+      res.set("Content-Type",req.post.photo.contentType)
+      return res.send(req.post.photo.data);
+  //}
+  next();
+}
+
+exports.onePost = (req, res) => {
+  return res.json(req.post);
+};
