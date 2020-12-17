@@ -11,7 +11,7 @@ exports.getPosts = (req,res)=>{
   .then((posts)=>{
     res.status(200).json({posts:posts})
   })
-  .catch(err=> console.log(err)) 
+  .catch(err=> console.log(err))
 }
 
 exports.createPost = (req,res)=>{
@@ -42,13 +42,14 @@ exports.createPost = (req,res)=>{
 exports.postByUser = (req,res)=>{
   Post.find({postedBy:req.profile._id})
     .populate("postedBy","_id name")
+    .select('_id title body created')
     .sort("_created")
-    .exec((err,post)=>{
+    .exec((err,posts)=>{
       if(err)
         return res.status(400).json({
           error:err
         })
-      res.json(post)
+      res.json(posts)
     })
 }
 
@@ -87,16 +88,31 @@ exports.deletePost = (req,res)=>{
   })
 }
 
-exports.updatePost = (req,res,next)=>{
-  let post = req.post
-  post = _.extend(post,req.body)
-  post.save((err)=>{
-    if(err)
-      return res.status(400).json({
-          error: "You are not Authorised to perform this action"
-      })
-  })
-  res.json({post})
+exports.updatePost= (req,res,next)=>{
+    let form = new formidable.IncomingForm()
+    form.keepExtensions = true
+    form.parse(req,(err,fields,files)=>{
+        if(err){
+            return res.status(400).json({
+                error: "Image couldn't be uploaded"
+            })
+        }
+        let post = req.post
+        post = _.extend(post,fields)
+        post.updated = Date.now()
+        if(files.photo){
+            post.photo.data = fs.readFileSync(files.photo.path)
+            post.photo.contentType = files.photo.type
+        }
+        post.save((err,result)=>{
+            if(err){
+                return res.status(400).json({
+                    error:err
+                })
+            }
+            res.json(post)
+        })
+    })
 }
 
 exports.postPhoto = (req,res,next) =>{
