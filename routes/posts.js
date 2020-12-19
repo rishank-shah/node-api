@@ -10,6 +10,10 @@ router.get("/posts",postController.getPosts)
 
 router.get('/post/:postId', postController.onePost);
 
+router.put('/post/like',requireSignin,postController.likePost)
+
+router.put('/post/unlike',requireSignin,postController.unlikePost)
+
 router.post("/post/new/:userId",requireSignin,postController.createPost,[
   check('title',"Write A Title").notEmpty()
   ,check("title","Title must be between 4 to 150 characters").isLength({
