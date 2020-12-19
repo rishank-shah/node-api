@@ -5,14 +5,13 @@ const {check,validationResult } = require('express-validator')
 const {requireSignin} = require("../controllers/auth")
 const {userById} = require("../controllers/user")
 
+router.put('/post/like',requireSignin,postController.likePost)
+
+router.put('/post/unlike',requireSignin,postController.unlikePost)
 
 router.get("/posts",postController.getPosts)
 
 router.get('/post/:postId', postController.onePost);
-
-router.put('/post/like',requireSignin,postController.likePost)
-
-router.put('/post/unlike',requireSignin,postController.unlikePost)
 
 router.post("/post/new/:userId",requireSignin,postController.createPost,[
   check('title',"Write A Title").notEmpty()

@@ -2,6 +2,7 @@ const Post = require("../models/posts")
 const formidable = require("formidable")
 const fs = require('fs')
 const _ = require('lodash')
+const mongoose = require('mongoose')
 
 exports.getPosts = (req,res)=>{
   const posts = Post.find()
@@ -125,8 +126,8 @@ exports.onePost = (req, res) => {
 };
 
 exports.likePost = (req,res)=>{
-  Post.findByIdAndUpdate(req.body.postId, 
-    {$push: {likes: req.body.userId}},
+  Post.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.postId), 
+    {$push: {likes: mongoose.Types.ObjectId(req.body.userId)}},
     {new:true})
     .exec((err,result)=>{
       if(err){
@@ -137,8 +138,8 @@ exports.likePost = (req,res)=>{
 }
 
 exports.unlikePost = (req,res)=>{
-  Post.findByIdAndUpdate(req.body.postId, 
-    {$pull: {likes: req.body.userId}},
+  Post.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.postId), 
+    {$pull: {likes: mongoose.Types.ObjectId(req.body.userId)}},
     {new:true})
     .exec((err,result)=>{
       if(err){
