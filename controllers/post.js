@@ -7,6 +7,8 @@ const mongoose = require('mongoose')
 exports.getPosts = (req,res)=>{
   const posts = Post.find()
   .populate("postedBy", "_id name")
+  .populate("comments", "text created")
+  .populate("comments.postedBy", "_id name")
   .select("_id title body created likes")
   .sort({ created: -1 })
   .then((posts)=>{
@@ -57,6 +59,8 @@ exports.postByUser = (req,res)=>{
 exports.postById = (req,res,next,id)=>{
   Post.findById(id)
     .populate("postedBy","_id name")
+    .populate("comments", "text created")
+    .populate("comments.postedBy", "_id name")
     .exec((err,post)=>{
       if(err)
         res.status(400).json({
@@ -141,6 +145,37 @@ exports.unlikePost = (req,res)=>{
   Post.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.postId), 
     {$pull: {likes: mongoose.Types.ObjectId(req.body.userId)}},
     {new:true})
+    .exec((err,result)=>{
+      if(err){
+        return res.status(400).json({error:err})
+      }
+      res.json(result);
+    })
+}
+
+exports.commentPost = (req,res)=>{
+  let comment = req.body.comment
+  comment.postedBy = mongoose.Types.ObjectId(req.body.userId);
+  Post.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.postId), 
+    {$push: {comments: comment}},
+    {new:true})
+    .populate('comments.postedBy','_id name')
+    .populate('postedBy','_id name')
+    .exec((err,result)=>{
+      if(err){
+        return res.status(400).json({error:err})
+      }
+      res.json(result);
+    })
+}
+
+exports.uncommentPost = (req,res)=>{
+  let comment = req.body.comment
+  Post.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.postId), 
+    {$pull: {comments: {_id:comment._id}}},
+    {new:true})
+    .populate('comments.postedBy','_id name')
+    .populate('postedBy','_id name')
     .exec((err,result)=>{
       if(err){
         return res.status(400).json({error:err})

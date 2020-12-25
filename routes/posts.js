@@ -9,6 +9,10 @@ router.put('/post/like',requireSignin,postController.likePost)
 
 router.put('/post/unlike',requireSignin,postController.unlikePost)
 
+router.put('/post/comment',requireSignin,postController.commentPost)
+
+router.put('/post/uncomment',requireSignin,postController.uncommentPost)
+
 router.get("/posts",postController.getPosts)
 
 router.get('/post/:postId', postController.onePost);
